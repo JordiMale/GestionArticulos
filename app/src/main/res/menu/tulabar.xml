@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item
+        android:id="@+id/Tiemposss"
+        app:showAsAction="ifRoom|withText"
+        android:clickable="true"
+        android:icon="@drawable/clouds"
+        android:title="TODO">
+    </item>
+
+c
+    <item
+        android:id="@+id/OtraActivity"
+        android:clickable="true"
+        android:icon="@drawable/calendar"
+        android:title="Nou article"
+        app:showAsAction="ifRoom|withText">
+
+    </item>
+
+
+    <item
+        android:id="@+id/Casa"
+        app:showAsAction="never"
+        android:title="Inici">
+    </item>
+
+    <item
+        android:id="@+id/crear"
+        app:showAsAction="never"
+        android:title="Nou article">
+    </item>
+
+    <item
+        android:id="@+id/filtrarDescripcio"
+        app:showAsAction="never"
+        android:title="Filtrar per descripcio">
+    </item>
+
+    <item
+        android:id="@+id/filtrarStoc"
+        app:showAsAction="never"
+        android:title="Filtrar per stock">
+    </item>
+
+</menu>

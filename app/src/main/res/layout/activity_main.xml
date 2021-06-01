@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_todolistsimple"
+    android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/bottomLayout"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        >
+    </LinearLayout>
+
+
+    <ListView
+        android:id="@id/list1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+
+    </ListView>
+
+</LinearLayout>

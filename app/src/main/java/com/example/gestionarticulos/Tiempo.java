@@ -2,8 +2,13 @@ package com.example.gestionarticulos;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -16,6 +21,10 @@ import cz.msebera.android.httpclient.Header;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
+
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Tiempo extends AppCompatActivity {
 
@@ -34,16 +43,26 @@ public class Tiempo extends AppCompatActivity {
     TextView Presion;
     TextView Hume;
     TextView Visi;
+    City Json = null;
 
     String key="e5a9baee8a1b0febc34984498bfe654f";
 
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.tulabartiempo, menu);
+
+        return true;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_tiempo);
 
-        Pon_Ciud  = (TextView)findViewById(R.id.Poner_ciudad);
+        Pon_Ciud  = (TextView)findViewById(R.id.Poner_ciudad1);
         Poner_Grados = (TextView)findViewById(R.id.Grados);
         Poner_Tiempo = (TextView)findViewById(R.id.Tiempo_Hace);
-        ImageTi = (ImageView)findViewById(R.id.TiempoImagen);
+
         Horario = (TextView)findViewById(R.id.Horario);
         Sen_Termica = (TextView)findViewById(R.id.Sen_Termica);
         Viento = (TextView)findViewById(R.id.Viento);
@@ -55,16 +74,15 @@ public class Tiempo extends AppCompatActivity {
         Hume = (TextView)findViewById(R.id.Humedad);
         Visi = (TextView)findViewById(R.id.Visi);
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tiempo);
+
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
             Poner_Ubicacion = bundle.getString("1234");
         }
 
-
-        String api = "http://api.openweathermap.org/data/2.5/weather?q=" + Poner_Ubicacion + "&appid=" + key;
         String idioma = "&lang=es";
+        String api = "http://api.openweathermap.org/data/2.5/weather?q=" + Poner_Ubicacion + "&appid=" + key + idioma;
+
 
 
         AsyncHttpClient client = new AsyncHttpClient();
@@ -74,7 +92,7 @@ public class Tiempo extends AppCompatActivity {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                City Json = null;
+
                 JSONObject Ti = null;
                 String STRING = new String(responseBody);
 
@@ -101,7 +119,7 @@ public class Tiempo extends AppCompatActivity {
                             Ti.getJSONObject("coord").getDouble("lat"));
 
                     //Classe clouds
-                    Cloudes = new clouds(Ti.getJSONObject("Clouds").getDouble("all"));
+                    Cloudes = new clouds(Ti.getJSONObject("clouds").getDouble("all"));
 
                     //Classe sys
                     Syso = new sys(Ti.getJSONObject("sys").getInt("type"),
@@ -123,11 +141,11 @@ public class Tiempo extends AppCompatActivity {
                             Ti.getJSONObject("wind").getDouble("deg"));
 
                     //Classe wheater
-                    Weathere = new weather(Ti.getJSONObject("weather").getInt("id"),
-                            Ti.getJSONObject("weather").getString("main"),
-                            Ti.getJSONObject("weather").getString("description"),
-                            Ti.getJSONObject("weather").getString("few_clouds"),
-                            Ti.getJSONObject("weather").getString("icon"));
+                    Weathere = new weather(Ti.getJSONArray("weather").getJSONObject(0).getInt("id"),
+                            Ti.getJSONArray("weather").getJSONObject(0).getString("main"),
+                            Ti.getJSONArray("weather").getJSONObject(0).getString("description"),
+                            Ti.getJSONArray("weather").getJSONObject(0).optString("few_clouds", ""),
+                            Ti.getJSONArray("weather").getJSONObject(0).optString("icon", ""));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -144,7 +162,7 @@ public class Tiempo extends AppCompatActivity {
                             Ti.getString("name"),
                             Syso,
                             Ti.getInt("timezone"),
-                            Ti.getInt("visibility"),
+                            Ti.optInt("visibility", 0),
                             Weathere,
                             Windy
                     );
@@ -152,20 +170,68 @@ public class Tiempo extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                Pon_Ciud.setText(Json.getName());
-                Poner_Grados.setText((int) Json.getMain().getTemp());
+                //Ponemos ciudad
+                String Poner_Ciud = Json.getName();
+                Pon_Ciud.setText(Poner_Ciud);
+
+                //Convertimos los kel a cel
+                double Grados_final = Json.getMain().getTemp() -273.15;
+                String Grados_Finall = String.valueOf(Grados_final);
+                String Gra = Grados_Finall.charAt(0) + "" + Grados_Finall.charAt(1) + "º";
+                Poner_Grados.setText(Gra);
+
+                //Ponemos el tiempo
                 Poner_Tiempo.setText(Json.getWeather().getDescription());
 
-                Horario.setText(Json.getTimezone());
-                Sen_Termica.setText((int) Json.getMain().getFeels_like());
-                Viento.setText((int) Json.getWind().getSpeed());
-                Temp_Min.setText((int) Json.getMain().getTemp_min());
-                Temp_Max.setText((int) Json.getMain().getTemp_max());
-                Long.setText((int) Json.getCoord().getLon());
-                Lat.setText((int) Json.getCoord().getLat());
-                Presion.setText((int) Json.getMain().getPressure());
-                Hume.setText((int) Json.getMain().getHumidity());
-                Visi.setText(Json.getVivibility());
+                //Cojemos la fecha del movil
+                Date d=new Date();
+                SimpleDateFormat data = new SimpleDateFormat("d MMMM ");
+                String DataCom = data.format(d);
+                Horario.setText(DataCom);
+
+                //Hacemos igual que los grados
+                double Sen_Ter = Json.getMain().getFeels_like() - 273.15;
+                String Sen_Ter_Final = String.valueOf(Sen_Ter);
+                String Sen_Ter_Stegen = Sen_Ter_Final.charAt(0) + "" + Sen_Ter_Final.charAt(1) + "º";
+                Sen_Termica.setText(Sen_Ter_Stegen);
+
+                Viento.setText("S " + String.valueOf(Json.getWind().getSpeed()) + " km/h");
+
+                double Grados_Min =Json.getMain().getTemp_min() - 273.15;
+                String Grados_Min_Final = String.valueOf(Grados_Min);
+                String Gra2 = Grados_Min_Final.charAt(0) + "" + Grados_Min_Final.charAt(1) + "º";
+                Temp_Min.setText(Gra2);
+
+                double Grados_Max =Json.getMain().getTemp_max() - 273.15;
+                String Grados_Max_Final = String.valueOf(Grados_Max);
+                String Gra3 = Grados_Max_Final.charAt(0) + "" + Grados_Max_Final.charAt(1) + "º";
+                Temp_Max.setText(Gra3);
+/*
+                Thread thread = new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        try  {
+                            ImageTi = (ImageView)findViewById(R.id.imageView2);
+                            URL url = new URL("https://openweathermap.org/img/w/" + Json.getWeather().getIcon() +".png");
+                            Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                            ImageTi.setImageBitmap(bmp);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                thread.start();
+
+ */
+
+                Long.setText(String.valueOf(Json.getCoord().getLon()));
+                Lat.setText(String.valueOf(Json.getCoord().getLat()));
+                Presion.setText(String.valueOf(Json.getMain().getPressure()) + " hPa");
+                Hume.setText(String.valueOf(Json.getMain().getHumidity()) + "%");
+                Visi.setText(String.valueOf(Json.getVivibility() + " m"));
             }
 
             @Override
@@ -176,5 +242,22 @@ public class Tiempo extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.IrcasaTiempo:
+                Intent intent = new Intent(Tiempo.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+
+                return true;
+
+
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
